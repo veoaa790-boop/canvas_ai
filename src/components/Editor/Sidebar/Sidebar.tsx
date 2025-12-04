@@ -269,25 +269,26 @@ export const Sidebar: React.FC = () => {
   const isImageSelected = activeObject && activeObject.type === 'image';
 
   return (
-    <div className="flex h-full bg-white border-r border-gray-200">
+    <div className="flex h-full bg-white border-r border-gray-200 max-h-screen">
       {/* Icons Rail */}
-      <div className="w-16 flex flex-col items-center py-4 border-r border-gray-200 gap-4 shrink-0">
+      <div className="w-12 sm:w-16 flex flex-col items-center py-2 md:py-4 border-r border-gray-200 gap-2 md:gap-4 shrink-0 overflow-y-auto">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "flex flex-col items-center gap-1 p-2 rounded w-full transition-colors",
+              "flex flex-col items-center gap-1 p-1 sm:p-2 rounded w-full transition-colors",
               activeTab === tab.id ? "bg-indigo-50" : "hover:bg-gray-50"
             )}
           >
-            <DynamicIcon 
-                name={tab.key} 
-                icon={tab.icon} 
+            <DynamicIcon
+                name={tab.key}
+                icon={tab.icon}
+                size={16}
                 active={activeTab === tab.id}
             />
             <span className={cn(
-                "text-[10px] font-medium text-center leading-tight",
+                "text-[9px] sm:text-[10px] font-medium text-center leading-tight",
                 activeTab === tab.id ? "text-indigo-600" : "text-gray-500"
             )}>
                 {tab.label}
@@ -297,9 +298,9 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Panel Content */}
-      <div className="w-64 flex flex-col bg-gray-50 overflow-y-auto">
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-4 capitalize">
+      <div className="w-56 sm:w-64 lg:w-72 flex flex-col bg-gray-50 overflow-y-auto">
+        <div className="p-3 sm:p-4">
+          <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 capitalize">
             {TABS.find(t => t.id === activeTab)?.label || activeTab}
           </h2>
           
