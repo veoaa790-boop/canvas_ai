@@ -12,7 +12,12 @@ import { kieService } from '../../../services/kieService';
 import { DynamicIcon } from '../../Common/DynamicIcon';
 import { ICON_KEYS } from '../../../utils/constants';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onClose?: () => void;
+  isMobile?: boolean;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, isMobile = false }) => {
   const [activeTab, setActiveTab] = useState('templates');
   const { canvas, templates, apiConfig, activeObject, uiConfig } = useEditor();
   
@@ -47,11 +52,21 @@ export const Sidebar: React.FC = () => {
     { id: 'magic-edit', icon: Camera, label: 'Magic Edit', key: ICON_KEYS.SIDEBAR_MAGIC },
   ];
 
+  const handleActionAndClose = (action: () => void) => {
+    action();
+    if (isMobile && onClose) {
+      setTimeout(() => onClose(), 300);
+    }
+  };
+
   const loadTemplate = (json: string) => {
     if (!canvas) return;
     canvas.loadFromJSON(JSON.parse(json), () => {
       canvas.renderAll();
     });
+    if (isMobile && onClose) {
+      setTimeout(() => onClose(), 300);
+    }
   };
 
   const addText = (text: string, options: any) => {
@@ -67,6 +82,9 @@ export const Sidebar: React.FC = () => {
     canvas.add(textObj);
     canvas.setActiveObject(textObj);
     canvas.renderAll();
+    if (isMobile && onClose) {
+      setTimeout(() => onClose(), 300);
+    }
   };
 
   const addImage = (url: string) => {
@@ -78,6 +96,9 @@ export const Sidebar: React.FC = () => {
       canvas.setActiveObject(img);
       canvas.renderAll();
     }, { crossOrigin: 'anonymous' });
+    if (isMobile && onClose) {
+      setTimeout(() => onClose(), 300);
+    }
   };
 
   const addVideoToCanvas = (url: string) => {
@@ -269,22 +290,22 @@ export const Sidebar: React.FC = () => {
   const isImageSelected = activeObject && activeObject.type === 'image';
 
   return (
-    <div className="flex h-full bg-white border-r border-gray-200 max-h-screen">
+    <div className="flex h-full bg-white border-r border-gray-200 max-h-screen shadow-xl">
       {/* Icons Rail */}
-      <div className="w-12 sm:w-16 flex flex-col items-center py-2 md:py-4 border-r border-gray-200 gap-2 md:gap-4 shrink-0 overflow-y-auto">
+      <div className="w-12 sm:w-16 flex flex-col items-center py-2 md:py-4 border-r border-gray-200 gap-2 md:gap-4 shrink-0 overflow-y-auto bg-gray-50">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "flex flex-col items-center gap-1 p-1 sm:p-2 rounded w-full transition-colors",
-              activeTab === tab.id ? "bg-indigo-50" : "hover:bg-gray-50"
+              "flex flex-col items-center gap-1 p-1 sm:p-2 rounded w-full transition-all touch-manipulation active:scale-95",
+              activeTab === tab.id ? "bg-indigo-50 shadow-sm" : "hover:bg-gray-100 active:bg-gray-200"
             )}
           >
             <DynamicIcon
                 name={tab.key}
                 icon={tab.icon}
-                size={16}
+                size={isMobile ? 18 : 16}
                 active={activeTab === tab.id}
             />
             <span className={cn(
@@ -298,23 +319,38 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Panel Content */}
-      <div className="w-56 sm:w-64 lg:w-72 flex flex-col bg-gray-50 overflow-y-auto">
+      <div className="w-64 sm:w-64 lg:w-72 flex flex-col bg-gray-50 overflow-y-auto overscroll-contain">
+        {isMobile && onClose && (
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between z-10 shadow-sm">
+            <h3 className="font-semibold text-sm text-gray-700 capitalize">
+              {TABS.find(t => t.id === activeTab)?.label || activeTab}
+            </h3>
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-gray-100 rounded-full active:bg-gray-200 transition-colors touch-manipulation"
+            >
+              <X size={18} className="text-gray-500" />
+            </button>
+          </div>
+        )}
         <div className="p-3 sm:p-4">
-          <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 capitalize">
-            {TABS.find(t => t.id === activeTab)?.label || activeTab}
-          </h2>
+          {!isMobile && (
+            <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 capitalize">
+              {TABS.find(t => t.id === activeTab)?.label || activeTab}
+            </h2>
+          )}
           
           {activeTab === 'templates' && (
             <div className="grid grid-cols-1 gap-3">
               {templates.map((t) => (
-                <button 
-                  key={t.id} 
+                <button
+                  key={t.id}
                   onClick={() => loadTemplate(t.json)}
-                  className="group relative aspect-video bg-white rounded overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-200"
+                  className="group relative aspect-video bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md active:shadow-lg transition-all border border-gray-200 touch-manipulation active:scale-[0.98]"
                 >
                   <img src={t.thumbnail} alt={t.name} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-end p-2">
-                    <span className="text-xs font-medium text-white drop-shadow-md opacity-0 group-hover:opacity-100 transition-opacity">{t.name}</span>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 group-active:bg-black/20 transition-colors flex items-end p-2">
+                    <span className="text-xs font-medium text-white drop-shadow-md opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity">{t.name}</span>
                   </div>
                 </button>
               ))}
@@ -323,25 +359,25 @@ export const Sidebar: React.FC = () => {
 
           {activeTab === 'text' && (
             <div className="space-y-3">
-              <button 
+              <button
                 onClick={() => addText('Add a heading', { fontSize: 42, fontWeight: 'bold' })}
-                className="w-full p-4 bg-white border border-gray-200 rounded hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 active:bg-gray-100 flex items-center gap-3 transition-all touch-manipulation active:scale-[0.98] shadow-sm hover:shadow"
               >
                 <DynamicIcon name={ICON_KEYS.SIDEBAR_TEXT_H1} icon={Heading1} size={24} className="text-gray-800" />
                 <span className="text-lg font-bold text-gray-800">Add a heading</span>
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => addText('Add a subheading', { fontSize: 28, fontWeight: '500' })}
-                className="w-full p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                className="w-full p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 active:bg-gray-100 flex items-center gap-3 transition-all touch-manipulation active:scale-[0.98] shadow-sm hover:shadow"
               >
                 <DynamicIcon name={ICON_KEYS.SIDEBAR_TEXT_H2} icon={Heading2} size={20} className="text-gray-700" />
                 <span className="text-base font-medium text-gray-700">Add a subheading</span>
               </button>
 
-              <button 
+              <button
                 onClick={() => addText('Add a little bit of body text', { fontSize: 16, fontWeight: 'normal' })}
-                className="w-full p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                className="w-full p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 active:bg-gray-100 flex items-center gap-3 transition-all touch-manipulation active:scale-[0.98] shadow-sm hover:shadow"
               >
                 <DynamicIcon name={ICON_KEYS.SIDEBAR_TEXT_BODY} icon={TypeIcon} size={18} className="text-gray-600" />
                 <span className="text-sm text-gray-600">Add body text</span>
@@ -351,19 +387,19 @@ export const Sidebar: React.FC = () => {
 
           {activeTab === 'images' && (
             <div className="space-y-4">
-              <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
+              <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <DynamicIcon name={ICON_KEYS.SIDEBAR_IMAGE_UPLOAD} icon={Upload} size={24} className="text-gray-400 mb-1" />
-                  <p className="text-xs text-gray-500">Upload Image</p>
+                  <p className="text-xs text-gray-500 font-medium">Upload Image</p>
                 </div>
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {['abstract', 'nature', 'tech', 'people'].map((cat, i) => (
-                  <button 
+                  <button
                     key={i}
                     onClick={() => addImage(`https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/400x400?text=${cat}`)}
-                    className="aspect-square bg-gray-200 rounded overflow-hidden hover:opacity-80"
+                    className="aspect-square bg-gray-200 rounded-lg overflow-hidden hover:opacity-80 active:opacity-60 transition-all touch-manipulation active:scale-95 shadow-sm hover:shadow"
                   >
                     <img src={`https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://placehold.co/200x200?text=${cat}`} alt={cat} className="w-full h-full object-cover" />
                   </button>
@@ -374,36 +410,42 @@ export const Sidebar: React.FC = () => {
 
           {activeTab === 'shapes' && (
             <div className="grid grid-cols-3 gap-3">
-              <button 
+              <button
                 onClick={() => {
                     if(!canvas) return;
                     const rect = new fabric.Rect({ width: 50, height: 50, fill: '#333', left: 100, top: 100 });
                     canvas.add(rect);
                     canvas.setActiveObject(rect);
+                    canvas.renderAll();
+                    if (isMobile && onClose) setTimeout(() => onClose(), 300);
                 }}
-                className="aspect-square bg-white border rounded flex items-center justify-center hover:bg-gray-100"
+                className="aspect-square bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-all touch-manipulation active:scale-95 shadow-sm hover:shadow"
               >
-                <div className="w-8 h-8 bg-gray-800" />
+                <div className="w-8 h-8 bg-gray-800 rounded" />
               </button>
-              <button 
+              <button
                 onClick={() => {
                     if(!canvas) return;
                     const circle = new fabric.Circle({ radius: 25, fill: '#333', left: 100, top: 100 });
                     canvas.add(circle);
                     canvas.setActiveObject(circle);
+                    canvas.renderAll();
+                    if (isMobile && onClose) setTimeout(() => onClose(), 300);
                 }}
-                className="aspect-square bg-white border rounded flex items-center justify-center hover:bg-gray-100"
+                className="aspect-square bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-all touch-manipulation active:scale-95 shadow-sm hover:shadow"
               >
                 <div className="w-8 h-8 bg-gray-800 rounded-full" />
               </button>
-              <button 
+              <button
                 onClick={() => {
                     if(!canvas) return;
                     const tri = new fabric.Triangle({ width: 50, height: 50, fill: '#333', left: 100, top: 100 });
                     canvas.add(tri);
                     canvas.setActiveObject(tri);
+                    canvas.renderAll();
+                    if (isMobile && onClose) setTimeout(() => onClose(), 300);
                 }}
-                className="aspect-square bg-white border rounded flex items-center justify-center hover:bg-gray-100"
+                className="aspect-square bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-all touch-manipulation active:scale-95 shadow-sm hover:shadow"
               >
                 <div className="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[32px] border-b-gray-800" />
               </button>

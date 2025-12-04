@@ -59,15 +59,15 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 touch-manipulation">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-sm sm:text-base text-gray-500">Manage your design templates, fonts, and API keys</p>
           </div>
-          <Link to="/" className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
-            <Plus size={16} className="sm:w-4 sm:h-4" /> Open Editor
+          <Link to="/" className="px-4 sm:px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 flex items-center gap-2 text-sm sm:text-base whitespace-nowrap shadow-md transition-all touch-manipulation active:scale-95">
+            <Plus size={18} className="sm:w-5 sm:h-5" /> Open Editor
           </Link>
         </div>
 
