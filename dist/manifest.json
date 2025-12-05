@@ -1,0 +1,22 @@
+{
+  "name": "Dualite Editor",
+  "short_name": "Dualite",
+  "description": "Professional design editor with AI capabilities",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f9fafb",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/HLfD5wgf/dualite-favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.ibb.co/HLfD5wgf/dualite-favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
